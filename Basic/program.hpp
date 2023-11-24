@@ -13,6 +13,7 @@
 #include <set>
 #include <unordered_map>
 #include "statement.hpp"
+#include <map>
 
 
 class Statement;
@@ -33,6 +34,7 @@ class Statement;
 class Program {
 
 public:
+    int currentLine = 0;
 
 /*
  * Constructor: Program
@@ -106,7 +108,7 @@ public:
  * exists, the memory for that statement is reclaimed.
  */
 
-    void setParsedStatement(int lineNumber, Statement *stmt);
+    void setParsedStatement(int lineNumber, Statement *&stmt);
 
 /*
  * Method: getParsedStatement
@@ -140,13 +142,12 @@ public:
 
     int getNextLineNumber(int lineNumber);
 
-    //more func to add
-    //todo
+    //void run_stmt(EvalState &state);
+    std::map<int, std::string> programLines;
+
 
 private:
-
-    // Fill this in with whatever types and instance variables you need
-    //todo
+    std::map<int, Statement*> programStates;
 };
 
 #endif

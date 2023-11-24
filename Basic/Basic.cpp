@@ -15,6 +15,7 @@
 #include "Utils/strlib.hpp"
 
 
+
 /* Function prototypes */
 
 void processLine(std::string line, Program &program, EvalState &state);
@@ -57,6 +58,52 @@ void processLine(std::string line, Program &program, EvalState &state) {
     scanner.scanNumbers();
     scanner.setInput(line);
 
-    //todo
+    std::string token = scanner.nextToken();
+    if (scanner.getTokenType(token) == NUMBER) {
+        int lineNumber = stringToInteger(token);
+        int x = scanner.getPosition();
+        if (scanner.hasMoreTokens()) {
+            program.addSourceLine(lineNumber, line.substr(x));
+        } else {
+            program.removeSourceLine(lineNumber);
+        }
+    } else if (scanner.getTokenType(token) == WORD) {
+        if (token == "LET") {
+          Expression *parsed_stmt = parseExp(scanner);
+          LET_stmt let_stmt(parsed_stmt);
+          let_stmt.execute(state, program);
+        } else if (token == "PRINT") {
+            Expression *parsed_stmt = parseExp(scanner);
+            PRINT_stmt print_stmt(parsed_stmt);
+            print_stmt.execute(state, program);
+        } else if (token == "INPUT") {
+            std::string str = scanner.nextToken();
+            INPUT_stmt input_stmt(str);
+            input_stmt.execute(state, program);
+        } else if (token == "CLEAR") {
+            program.clear();
+            state.Clear();
+        } else if (token == "QUIT") {
+            program.clear();
+            state.Clear();
+            exit(0);
+        } else if (token == "LIST") {
+            int num = program.getFirstLineNumber();
+            while (num != -1) {
+                std::cout<<num<<program.getSourceLine(num)<<'\n';
+                num = program.getNextLineNumber(num);
+            }
+        } else if (token == "RUN") {
+            //program.run_stmt(state);
+            int lineNumber  = program.getFirstLineNumber();
+            while(lineNumber != -1) {
+                Statement *stmt;
+                program.setParsedStatement(lineNumber, stmt);
+                stmt->execute(state, program);
+                lineNumber = program.getNextLineNumber(lineNumber);
+            }
+        }
+    }
+
 }
 
